@@ -14,5 +14,7 @@ sealed class Screen {
     data class CoinDetailGraph(val coinName: String?, val data: String): Screen()
     @Serializable
     data object You: Screen()
+    @Serializable
+    data class WebView(val url: String, val name: String): Screen()
 }
 

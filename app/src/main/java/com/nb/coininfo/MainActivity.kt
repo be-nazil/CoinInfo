@@ -33,6 +33,7 @@ import com.nb.coininfo.ui.screens.home.HomeViewModel
 import com.nb.coininfo.ui.screens.splash.SplashScreen
 import com.nb.coininfo.ui.screens.splash.SplashViewModel
 import com.nb.coininfo.ui.screens.walkthrough.WalkthroughViewModel
+import com.nb.coininfo.ui.screens.webview.WebViewScreen
 import com.nb.coininfo.ui.theme.CoinInfoTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.lang.reflect.Type
@@ -110,6 +111,13 @@ fun SetupNavigation() {
             val coin : Screen.CoinDetailGraph = backStackEntry.toRoute()
             val data = Gson().fromJson<List<Pair<Double, Double>>>(coin.data, object: TypeToken<List<Pair<Double, Double>>>(){}.type)
             FullScreenLineChartScreen(coin.coinName, data) {
+                navHostController.popBackStack()
+            }
+        }
+
+        composable<Screen.WebView> { backStackEntry ->
+            val coin: Screen.WebView = backStackEntry.toRoute()
+            WebViewScreen(coin.url, title = coin.name) {
                 navHostController.popBackStack()
             }
         }
