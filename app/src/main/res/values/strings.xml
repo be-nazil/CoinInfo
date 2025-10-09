@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">CoinInfo</string>
+    <string name="data_loading">Loading data, please wait!</string>
+</resources>
