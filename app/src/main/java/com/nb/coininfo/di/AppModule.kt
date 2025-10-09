@@ -1,6 +1,7 @@
 package com.nb.coininfo.di
 
 import androidx.annotation.Keep
+import com.nb.coininfo.BuildConfig
 import com.nb.coininfo.data.apiservices.ApiInterface
 import com.nb.coininfo.data.apiservices.CoinService2
 import com.nb.coininfo.data.apiservices.CoinsService
@@ -23,6 +24,10 @@ import kotlin.run
 @InstallIn(SingletonComponent::class)
 @Keep
 object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideApiKey(): String = BuildConfig.API_KEY
 
     @Provides
     @Named(DINameConstants.DI_NAME_COIN_PAPRIKA_HTTP)
@@ -58,7 +63,7 @@ object AppModule {
                 val original = chain.request()
                 val request = original.newBuilder()
                     .header("Content-Type", "application/json")
-                    .header("x-cg-demo-api-key", DINameConstants.API_KEY)
+                    .header("x-cg-demo-api-key", provideApiKey())
                     .method(original.method, original.body)
                     .build()
                 chain.proceed(request)

@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SetupNavigation()//navHostController = rememberNavController())
+                    SetupNavigation()
                 }
             }
         }
@@ -61,53 +61,49 @@ fun SetupNavigation() {
 
     val navHostController: NavHostController = rememberNavController()
     NavHost(navController = navHostController, startDestination = Screen.Splash) {
-        composable<Screen.Splash> {
-            val viewModel = hiltViewModel<SplashViewModel>()
-            //Log.i("MainAct", "SetupNavigation: called Splash")
-            SplashScreen(viewModel = viewModel) { screen->
+        composable<Screen.Splash> { backStackEntry->
+            val viewModel = hiltViewModel<SplashViewModel>(backStackEntry)
+            SplashScreen(viewModel = viewModel) { screen ->
                 navHostController.navigate(screen) {
-                    popUpTo<Screen.Splash> { inclusive = true }
+                    launchSingleTop = true
+                    restoreState = true
+                    popUpTo(Screen.Splash) { inclusive = true }
                 }
             }
         }
 
         composable<Screen.Home> { backStackEntry ->
-            val context = LocalContext.current
-            BackHandler {
-                // Cast the context to an Activity and call finish() to close the app
-                (context as? Activity)?.onBackPressed()
+            BackHandler(enabled = navHostController.previousBackStackEntry != null) {
+                navHostController.popBackStack()
             }
-            //Log.i("MainAct", "SetupNavigation: called Home")
 
-            val viewModel = hiltViewModel<HomeViewModel>()
-            val walkthroughViewModel = hiltViewModel<WalkthroughViewModel>()
-            HomeScreen(Modifier, viewModel, walkthroughViewModel) {
-                navHostController.navigate(Screen.CoinDetail(it))
+            val viewModel = hiltViewModel<HomeViewModel>(backStackEntry)
+            val walkthroughViewModel = hiltViewModel<WalkthroughViewModel>(backStackEntry)
+            HomeScreen(Modifier, viewModel, walkthroughViewModel) { coinId ->
+                navHostController.navigate(Screen.CoinDetail(coinId)) {
+                    launchSingleTop = true
+                    restoreState = true
+                }
             }
         }
 
 
         composable<Screen.CoinDetail> { backStackEntry ->
-            val coin : Screen.CoinDetail = backStackEntry.toRoute()
-            if (coin.cryptoId.isNotEmpty()) {
-                val viewModel = hiltViewModel<CoinDetailViewModel>()
-                val state = viewModel.uiState.collectAsStateWithLifecycle()
-                CoinDetailScreen(
-                    coin.cryptoId,
-                    state.value,
-                    viewModel::onEvent,
-                    onNavigateUp = { screen ->
-                        Log.d("SetupNavigation", "SetupNavigation: clickedd")
-                        if (screen == null) {
-                            navHostController.popBackStack()
-                        } else {
-                            navHostController.navigate(screen)
-                        }
+            val coin = backStackEntry.arguments?.getString("cryptoId") ?: return@composable
+            val viewModel = hiltViewModel<CoinDetailViewModel>(backStackEntry)
+            val state = viewModel.uiState.collectAsStateWithLifecycle()
+            CoinDetailScreen(
+                coin,
+                state.value,
+                viewModel::onEvent,
+                onNavigateUp = { screen ->
+                    if (screen == null) navHostController.popBackStack()
+                    else navHostController.navigate(screen) {
+                        launchSingleTop = true
+                        restoreState = true
                     }
-                )
-            } else {
-                // Show a loading or error state
-            }
+                }
+            )
         }
 
         composable<Screen.CoinDetailGraph> { backStackEntry->

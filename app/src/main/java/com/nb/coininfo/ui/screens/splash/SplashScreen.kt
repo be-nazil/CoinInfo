@@ -70,8 +70,8 @@ fun SplashContent(
             .fillMaxSize(),
     ) {
 
-        BitcoinSplashScreen()
-        /*AnimatedVisibility(
+        //BitcoinSplashScreen()
+        AnimatedVisibility(
             visible = isLoading,
             enter = slideInVertically(
                 initialOffsetY = { fullHeight -> -(fullHeight/2) },
@@ -95,7 +95,7 @@ fun SplashContent(
                 if (!isLoading)
                     splashTimeOut?.invoke()
             }
-        }*/
+        }
     }
 }
 

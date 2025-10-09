@@ -111,13 +111,13 @@ class CoinDetailViewModel @Inject constructor(
 
     fun getGraphData(id: String) {
         viewModelScope.launch {
-            delay(1000)
+            /*delay(1000)
             val processedData = chartData.prices?.map { Pair(it?.get(0) ?: 0.0, it?.get(1) ?: 0.0) }
 
             _uiState.update {
                 it.copy(false, graphData = processedData)
             }
-            return@launch
+            return@launch*/
             cryptoRepository.getChartData(id)
                 .flowOn(Dispatchers.IO)
                 .catch {
