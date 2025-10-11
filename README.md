@@ -47,8 +47,8 @@ CoinInfo is a **sample Android app** built for educational and project purposes.
 
 This app uses public cryptocurrency data APIs:
 
-- [CoinGecko API](https://www.coingecko.com/en/api) — Market data, charts, and more
-- [CoinPaprika API](https://api.coinpaprika.com/) — Additional market info
+- [CoinPaprika API](https://api.coinpaprika.com/) — Market data, charts, and more
+- [CoinGecko API](https://www.coingecko.com/en/api) — Additional market info
 
 > All data used in the app belongs to their respective providers.
 
