@@ -134,9 +134,27 @@ fun CoinDetailScreen(
                 }
             }
 
-            coin?.whitepaper?.link?.let {
-                item { WhitepaperButton(url = it, name = coin?.name.orNA(), onNavigateUp =  onNavigateUp) }
+            item {
+                Row {
+                    coin?.whitepaper?.link?.let {
+                        WhitepaperButton(modifier = Modifier.weight(1f), url = it, name = coin?.name.orNA(), onNavigateUp =  onNavigateUp)
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    }
+                    Button(
+                        onClick = {
+                            coin
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentCyan)
+                    ) {
+                        Icon(Icons.Default.DateRange, contentDescription = "Whitepaper Icon")
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        Text("Events", fontWeight = FontWeight.Medium, color = Color.Black)
+                    }
+                }
             }
+
 
             item { KeyInfoGrid(coin) }
 
@@ -218,7 +236,7 @@ private fun CoinTags(tags: List<TagEntity>) {
 }
 
 @Composable
-fun WhitepaperButton(url: String, name: String, onNavigateUp: (Screen) -> Unit) {
+fun WhitepaperButton(modifier: Modifier, url: String, name: String, onNavigateUp: (Screen) -> Unit) {
     val context = LocalContext.current
     Button(
         onClick = {
@@ -227,13 +245,13 @@ fun WhitepaperButton(url: String, name: String, onNavigateUp: (Screen) -> Unit) 
             /*val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             context.startActivity(intent)*/
         },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(containerColor = AccentCyan)
     ) {
-        Icon(Icons.Default.DateRange, contentDescription = "Whitepaper Icon")
+        Icon(painterResource(R.drawable.ic_newspaper_24), contentDescription = "Whitepaper Icon")
         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-        Text("View Whitepaper", fontWeight = FontWeight.Bold, color = Color.Black)
+        Text("Whitepaper", fontWeight = FontWeight.Medium, color = Color.Black)
     }
 }
 
