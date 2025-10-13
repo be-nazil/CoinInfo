@@ -114,7 +114,7 @@ fun CoinEventsScreen(
             } else {
                 if (uiState.coinEvents.isNullOrEmpty()) {
                     item {
-                        Text(text = "No data found...")
+                        Text(text = "No data found.")
                     }
                 } else {
                     itemsIndexed(uiState.coinEvents.orEmpty(), key = { i, it-> it.name}) { i, item->
