@@ -125,9 +125,11 @@ fun SetupNavigation() {
 
         composable<Screen.CoinEventsScreen> { backStackEntry ->
             val coin: Screen.CoinEventsScreen = backStackEntry.toRoute()
-            CoinEventsScreen(coinId = coin.cryptoId, coinName = coin.coinName, onEvent = {
-                navHostController.navigate(it)
-            }) {
+            val viewModel = hiltViewModel<CoinDetailViewModel>(backStackEntry)
+            CoinEventsScreen(
+                coinId = coin.cryptoId, coinName = coin.coinName, viewModel = viewModel,
+                onEvent = { navHostController.navigate(it) }
+            ) {
                 navHostController.popBackStack()
             }
         }
