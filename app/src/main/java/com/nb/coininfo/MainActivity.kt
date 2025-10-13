@@ -28,6 +28,7 @@ import com.nb.coininfo.ui.screens.home.HomeScreen
 import com.nb.coininfo.ui.screens.Screen
 import com.nb.coininfo.ui.screens.coindetails.CoinDetailScreen
 import com.nb.coininfo.ui.screens.coindetails.CoinDetailViewModel
+import com.nb.coininfo.ui.screens.coindetails.CoinEventsScreen
 import com.nb.coininfo.ui.screens.coindetails.FullScreenLineChartScreen
 import com.nb.coininfo.ui.screens.home.HomeViewModel
 import com.nb.coininfo.ui.screens.splash.SplashScreen
@@ -118,6 +119,15 @@ fun SetupNavigation() {
         composable<Screen.WebView> { backStackEntry ->
             val coin: Screen.WebView = backStackEntry.toRoute()
             WebViewScreen(coin.url, title = coin.name) {
+                navHostController.popBackStack()
+            }
+        }
+
+        composable<Screen.CoinEventsScreen> { backStackEntry ->
+            val coin: Screen.CoinEventsScreen = backStackEntry.toRoute()
+            CoinEventsScreen(coinId = coin.cryptoId, coinName = coin.coinName, onEvent = {
+                navHostController.navigate(it)
+            }) {
                 navHostController.popBackStack()
             }
         }

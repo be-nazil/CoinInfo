@@ -10,6 +10,8 @@ sealed class Screen {
     @Serializable
     data class CoinDetail(val cryptoId: String): Screen()
     @Serializable
+    data class CoinEventsScreen(val cryptoId: String, val coinName: String): Screen()
+    @Serializable
 
     data class CoinDetailGraph(val coinName: String?, val data: String): Screen()
     @Serializable

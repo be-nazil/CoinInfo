@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.nb.coininfo.data.models.CoinDetails
 import com.nb.coininfo.data.models.CoinDetailsEntity
+import com.nb.coininfo.data.models.EventEntity
 import com.nb.coininfo.data.models.MarketChartResponse
 import com.nb.coininfo.data.repository.CryptoLocalRepository
 import com.nb.coininfo.data.repository.CryptoRepository
@@ -29,6 +30,7 @@ data class CoinDetailsUiState(
     val isLoading: Boolean = true,
     val coin: CoinDetails? = null,
     val graphData: List<Pair<Double, Double>>? = null,
+    val coinEvents: List<EventEntity>? = null,
 )
 
 sealed class CoinDetailEvents {
@@ -131,6 +133,20 @@ class CoinDetailViewModel @Inject constructor(
                     Log.d("VM", "coin: $graphData")
                 }
         }
+    }
+
+
+    suspend fun getEvents(coinId: String) {
+        cryptoRepository.getEvents(coinId)
+            .flowOn(Dispatchers.IO)
+            .catch {
+                Log.d("VM", "getGlobalStats: ${it.localizedMessage}")
+            }
+            .collect { ls->
+                _uiState.update {
+                    it.copy(isLoading = false, coinEvents = ls)
+                }
+            }
     }
 
     fun onEvent(event: CoinDetailEvents) {

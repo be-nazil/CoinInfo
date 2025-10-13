@@ -142,7 +142,7 @@ fun CoinDetailScreen(
                     }
                     Button(
                         onClick = {
-                            coin
+                            coin?.id?.let { onNavigateUp.invoke(Screen.CoinEventsScreen(it, coin.name.orNA())) }
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
@@ -159,7 +159,6 @@ fun CoinDetailScreen(
             item { KeyInfoGrid(coin) }
 
             coin?.description?.let {
-
                 item {
                     Section(title = "About ${coin.name}",
                         content = {
@@ -237,13 +236,10 @@ private fun CoinTags(tags: List<TagEntity>) {
 
 @Composable
 fun WhitepaperButton(modifier: Modifier, url: String, name: String, onNavigateUp: (Screen) -> Unit) {
-    val context = LocalContext.current
     Button(
         onClick = {
             Log.d("URL", "WhitepaperButton: $url")
             onNavigateUp(Screen.WebView(url, name))
-            /*val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-            context.startActivity(intent)*/
         },
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
@@ -355,7 +351,6 @@ fun Section(
     }
 }
 
-// --- Preview ---
 @Preview(showBackground = true, backgroundColor = 0xFF121212)
 @Composable
 fun CoinDetailScreenPreview() {

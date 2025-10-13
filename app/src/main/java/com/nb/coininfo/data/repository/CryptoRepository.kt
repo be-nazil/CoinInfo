@@ -6,6 +6,7 @@ import com.nb.coininfo.data.models.CoinDetails
 import com.nb.coininfo.data.models.CoinDetailsEntity
 import com.nb.coininfo.data.models.CoinEntity
 import com.nb.coininfo.data.models.CoinGraphData
+import com.nb.coininfo.data.models.EventEntity
 import com.nb.coininfo.data.models.GlobalStatsEntity
 import com.nb.coininfo.data.models.MarketChartResponse
 import com.nb.coininfo.data.models.TodayOHLCEntityItem
@@ -21,7 +22,6 @@ import javax.inject.Inject
 class CryptoRepository @Inject constructor(
     private val coinsService: CoinsService,
     private val coinsService2: CoinService2,
-    private val cryptoLocalRepository: CryptoLocalRepository
 ){
     suspend fun getCoin(id: String): Flow<CoinDetails?> {
         return flow {
@@ -68,6 +68,11 @@ class CryptoRepository @Inject constructor(
     suspend fun getMovers(): Flow<TopMoversEntity?> {
         return flow {
             emit(coinsService.getMovers())
+        }
+    }
+    fun getEvents(coinId: String): Flow<List<EventEntity>?> {
+        return flow {
+            emit(coinsService.getEvents(coinId))
         }
     }
 }
