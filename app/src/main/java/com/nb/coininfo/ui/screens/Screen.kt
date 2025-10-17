@@ -17,6 +17,8 @@ sealed class Screen {
     @Serializable
     data object You: Screen()
     @Serializable
+    data object SearchScreen: Screen()
+    @Serializable
     data class WebView(val url: String, val name: String): Screen()
 }
 

@@ -2,6 +2,7 @@ package com.nb.coininfo.ui.screens.home
 
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,8 +31,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -38,6 +49,7 @@ import com.nb.coininfo.ui.components.CardAction
 import com.nb.coininfo.ui.components.CombinedCryptoSummaryCard
 import com.nb.coininfo.ui.components.ShimmerCard
 import com.nb.coininfo.ui.components.shimmerBrush
+import com.nb.coininfo.ui.screens.Screen
 import com.nb.coininfo.ui.screens.walkthrough.WalkthroughOverlay
 import com.nb.coininfo.ui.screens.walkthrough.WalkthroughTarget
 import com.nb.coininfo.ui.screens.walkthrough.WalkthroughViewModel
@@ -51,11 +63,12 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
     walkthroughViewModel: WalkthroughViewModel = hiltViewModel(),
-    onClick: (String) -> Unit
+    onClick: (String) -> Unit,
+    nav: ((Screen) -> Unit)?
 ) {
 
     val state = viewModel.homeUiState.collectAsStateWithLifecycle()
-    HomeScreenContent(modifier = modifier, state.value, walkthroughViewModel,onClick)
+    HomeScreenContent(modifier = modifier, state.value, walkthroughViewModel,onClick, nav)
 
     /*LaunchedEffect(homeViewModel.event) {
         homeViewModel.effect.collect { action->
@@ -77,7 +90,8 @@ fun HomeScreenContent(
     modifier: Modifier = Modifier,
     homeUiState: HomeUiState = HomeUiState(),
     walkthroughViewModel: WalkthroughViewModel = viewModel(),
-    onEvent: ((String) -> Unit)? = null
+    onEvent: ((String) -> Unit)? = null,
+    nav: ((Screen)-> Unit)? = null,
 ) {
     val highlightBounds = remember { mutableStateMapOf<WalkthroughTarget, Rect>() }
     val currentStep = walkthroughViewModel.currentStep
@@ -115,11 +129,14 @@ fun HomeScreenContent(
         Box {
             LazyColumn (modifier = Modifier.padding(10.dp), state = lazyListState) {
                 item {
+                    SearchTextField("abc", {})
                     Spacer(modifier = Modifier
                         .padding(it)
                         .height(10.dp))
                     Text(
-                        modifier = Modifier.padding(4.dp),
+                        modifier = Modifier.padding(4.dp).clickable {
+                            nav?.invoke(Screen.SearchScreen)
+                        },
                         text = "Overview",
                         style = TextStyle(fontSize = 30.sp, fontWeight = FontWeight.W400),
                         letterSpacing = TextUnit(5f, TextUnitType.Unspecified),
@@ -214,4 +231,45 @@ fun HomeScreenContent(
             )
         }
     }
+}
+
+@Composable
+fun SearchTextField(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = modifier,
+        placeholder = { Text("Search...", color = Color.White) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search Icon"
+            )
+        },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Clear search query"
+                    )
+                }
+            }
+        },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Search
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                keyboardController?.hide()
+            }
+        )
+    )
 }

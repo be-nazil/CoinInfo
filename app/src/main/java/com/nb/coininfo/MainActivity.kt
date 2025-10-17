@@ -31,6 +31,8 @@ import com.nb.coininfo.ui.screens.coindetails.CoinDetailViewModel
 import com.nb.coininfo.ui.screens.coindetails.CoinEventsScreen
 import com.nb.coininfo.ui.screens.coindetails.FullScreenLineChartScreen
 import com.nb.coininfo.ui.screens.home.HomeViewModel
+import com.nb.coininfo.ui.screens.search.SearchScreen
+import com.nb.coininfo.ui.screens.search.SearchViewModel
 import com.nb.coininfo.ui.screens.splash.SplashScreen
 import com.nb.coininfo.ui.screens.splash.SplashViewModel
 import com.nb.coininfo.ui.screens.walkthrough.WalkthroughViewModel
@@ -81,8 +83,13 @@ fun SetupNavigation() {
 
             val viewModel = hiltViewModel<HomeViewModel>(backStackEntry)
             val walkthroughViewModel = hiltViewModel<WalkthroughViewModel>(backStackEntry)
-            HomeScreen(Modifier, viewModel, walkthroughViewModel) { coinId ->
+            HomeScreen(Modifier, viewModel, walkthroughViewModel, { coinId ->
                 navHostController.navigate(Screen.CoinDetail(coinId)) {
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }) {
+                navHostController.navigate(Screen.SearchScreen) {
                     launchSingleTop = true
                     restoreState = true
                 }
@@ -121,6 +128,11 @@ fun SetupNavigation() {
             WebViewScreen(coin.url, title = coin.name) {
                 navHostController.popBackStack()
             }
+        }
+
+        composable<Screen.SearchScreen> { backStackEntry ->
+            val viewModel = hiltViewModel<SearchViewModel>(backStackEntry)
+            SearchScreen(viewModel)
         }
 
         composable<Screen.CoinEventsScreen> { backStackEntry ->
