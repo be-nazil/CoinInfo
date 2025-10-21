@@ -1,5 +1,6 @@
 package com.nb.coininfo.data.repository
 
+import androidx.paging.PagingSource
 import com.nb.coininfo.data.local.CoinInfoDao
 import com.nb.coininfo.data.models.CoinDetails
 import com.nb.coininfo.data.models.CoinDetailsEntity
@@ -25,6 +26,7 @@ interface CryptoLocalRepo {
     suspend fun insertCoinDetails(coinDetailsEntity: CoinDetails)
 
     fun getCoinDetails(coinId: String) : Flow<CoinDetailsEntity?>
+    fun searchCoin(request: String) : PagingSource<Int, CoinEntity>
 }
 
 
@@ -80,5 +82,9 @@ class CryptoLocalRepositoryImpl @Inject constructor(private val coinInfoDao: Coi
 
     override fun getCoinDetails(coinId: String): Flow<CoinDetailsEntity?> {
         return coinInfoDao.getCoinDetails(coinId)
+    }
+
+    override fun searchCoin(request: String): PagingSource<Int, CoinEntity> {
+        return coinInfoDao.searchCoin(request)
     }
 }

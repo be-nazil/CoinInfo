@@ -1,6 +1,10 @@
 package com.nb.coininfo.data.repository
 
 import androidx.compose.ui.util.fastFilterNotNull
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import com.nb.coininfo.data.models.CoinDetails
 import com.nb.coininfo.data.models.CoinDetailsEntity
 import com.nb.coininfo.data.models.CoinEntity
@@ -54,8 +58,22 @@ class CryptoLocalRepository @Inject constructor(private val cryptoLocalRepo: Cry
         return cryptoLocalRepo.insertCoinDetails(coinDetailsEntity)
     }
 
-    suspend fun getCoinDetails(coinId: String): Flow<CoinDetailsEntity?> {
+    fun getCoinDetails(coinId: String): Flow<CoinDetailsEntity?> {
         return cryptoLocalRepo.getCoinDetails(coinId)
+    }
+
+    fun searchCoin(searchQuery: String): Flow<PagingData<CoinEntity>> {
+        val dbQuery = "%${searchQuery.replace(' ', '%')}%"
+
+        return Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                cryptoLocalRepo.searchCoin(dbQuery)
+            }
+        ).flow
     }
 
 }

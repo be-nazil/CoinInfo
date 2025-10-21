@@ -1,5 +1,6 @@
 package com.nb.coininfo.data.local
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -52,7 +53,7 @@ interface CoinInfoDao {
     @Query("SELECT * FROM coin_details_table WHERE id = :coinId")
     fun getCoinDetails(coinId: String): Flow<CoinDetailsEntity?>
 
-    @Query("SELECT * FROM coin_table WHERE name LIKE :request ORDER BY name ASC ")
-    fun searchCoin(request: String): Flow<List<CoinEntity?>?>
+    @Query("SELECT * FROM coin_table WHERE rank != 0 AND name LIKE :request ORDER BY name ASC ")
+    fun searchCoin(request: String): PagingSource<Int, CoinEntity>
 
 }

@@ -127,9 +127,12 @@ dependencies {
     implementation("com.patrykandpatrick.vico:compose-m3:1.14.0")
 
 
-    implementation("androidx.room:room-runtime:2.4.2")
-    ksp("androidx.room:room-compiler:2.4.2")
-    implementation("androidx.room:room-ktx:2.4.2")
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+    implementation(libs.androidx.room.paging)
 
 }
