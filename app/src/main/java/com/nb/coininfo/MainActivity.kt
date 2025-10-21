@@ -7,11 +7,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -76,22 +82,26 @@ fun SetupNavigation() {
             }
         }
 
-        composable<Screen.Home> { backStackEntry ->
+        composable<Screen.Home>(
+            exitTransition = {
+                fadeOut(animationSpec = tween(450))
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(450))
+            }
+        ) { backStackEntry ->
             BackHandler(enabled = navHostController.previousBackStackEntry != null) {
                 navHostController.popBackStack()
             }
 
             val viewModel = hiltViewModel<HomeViewModel>(backStackEntry)
             val walkthroughViewModel = hiltViewModel<WalkthroughViewModel>(backStackEntry)
-            HomeScreen(Modifier, viewModel, walkthroughViewModel, { coinId ->
-                navHostController.navigate(Screen.CoinDetail(coinId)) {
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            }) {
-                navHostController.navigate(Screen.SearchScreen) {
-                    launchSingleTop = true
-                    restoreState = true
+            HomeScreen(Modifier, viewModel, walkthroughViewModel) {
+                navHostController.navigate(it) {
+                    if (it is Screen.CoinDetail) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
             }
         }
@@ -130,9 +140,31 @@ fun SetupNavigation() {
             }
         }
 
-        composable<Screen.SearchScreen> { backStackEntry ->
+        composable<Screen.SearchScreen>(
+            enterTransition = {
+                expandIn(
+                    expandFrom = Alignment.TopEnd,
+                    animationSpec = tween(450)
+                ) + fadeIn(animationSpec = tween(450))
+            },
+            popExitTransition = {
+                shrinkOut(
+                    shrinkTowards = Alignment.TopEnd,
+                    animationSpec = tween(450)
+                ) + fadeOut(animationSpec = tween(450))
+            }
+        ) { backStackEntry ->
             val viewModel = hiltViewModel<SearchViewModel>(backStackEntry)
-            SearchScreen(viewModel)
+            SearchScreen(viewModel) { coinEntity ->
+                coinEntity?.run {
+                    navHostController.navigate(Screen.CoinDetail(id)) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                } ?: run {
+                    navHostController.popBackStack()
+                }
+            }
         }
 
         composable<Screen.CoinEventsScreen> { backStackEntry ->
