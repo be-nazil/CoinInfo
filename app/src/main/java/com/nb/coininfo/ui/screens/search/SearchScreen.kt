@@ -2,11 +2,16 @@ package com.nb.coininfo.ui.screens.search
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,13 +27,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nb.coininfo.data.models.CoinEntity
+import com.nb.coininfo.data.models.MoverEntity
+import com.nb.coininfo.ui.theme.AccentCyan
+import com.nb.coininfo.ui.theme.CardDarkBackground
+import com.nb.coininfo.ui.theme.CoinInfoTheme
 import com.nb.coininfo.ui.theme.Gray24
+import com.nb.coininfo.ui.theme.MutedText
+import com.nb.coininfo.ui.theme.Red40
 import com.nb.coininfo.ui.theme.ScreenBackground
+import java.text.DecimalFormat
 
 @Composable
 fun SearchScreen(searchViewModel: SearchViewModel = viewModel()) {
@@ -56,7 +70,11 @@ fun SearchScreen(searchViewModel: SearchViewModel = viewModel()) {
             } else {
                 LazyColumn(modifier = Modifier.padding(top = 16.dp)) {
                     items(searchResults) { result ->
-                        Text(text = result, modifier = Modifier.padding(8.dp))
+                        Card(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(text = result, modifier = Modifier.padding(8.dp))
+                        }
                     }
                 }
             }
@@ -107,10 +125,57 @@ fun SearchTextField(
     )
 }
 
+@Composable
+private fun SearchItem(
+    coin: CoinEntity? = null,
+    modifier: Modifier = Modifier,
+    onClick: ((CoinEntity) -> Unit)? = null
+) {
+    if (coin != null ) {
+        Card(
+            modifier = modifier.fillMaxWidth().padding(2.dp),
+            shape = RoundedCornerShape(12.dp),
+            onClick = {
+                onClick?.invoke(coin)
+            },
+            colors = CardDefaults.cardColors(containerColor = CardDarkBackground)
+        ) {
+            // Left side: Rank, Name, Symbol
+            Row(
+                modifier = Modifier.padding(12.dp, 8.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "${coin?.rank ?: 0}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MutedText,
+                    modifier = Modifier.width(40.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(
+                        text = coin?.name ?: "NA",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = coin?.symbol ?: "NA",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MutedText
+                    )
+                }
+            }
+
+        }
+    }
+
+}
+
+
 @Preview(showBackground = true)
 @Composable
 private fun SearchScreenPreview() {
-    MaterialTheme {
-        SearchScreen()
+    CoinInfoTheme {
+        SearchItem(coin = CoinEntity("btc-bitcoin", "Bitcoin", "BTC", 1, false, true, "coin", null),)
     }
 }

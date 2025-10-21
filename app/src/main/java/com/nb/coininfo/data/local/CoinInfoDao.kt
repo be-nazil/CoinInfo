@@ -52,4 +52,7 @@ interface CoinInfoDao {
     @Query("SELECT * FROM coin_details_table WHERE id = :coinId")
     fun getCoinDetails(coinId: String): Flow<CoinDetailsEntity?>
 
+    @Query("SELECT * FROM coin_table WHERE name LIKE :request ORDER BY name ASC ")
+    fun searchCoin(request: String): Flow<List<CoinEntity?>?>
+
 }
