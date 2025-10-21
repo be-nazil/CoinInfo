@@ -31,28 +31,6 @@ class SearchViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    private val _isSearching = MutableStateFlow(false)
-    val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
-
-    init {
-        /*_searchQuery
-            .debounce(300L)
-            .distinctUntilChanged()
-            .onEach { query ->
-                if (query.isBlank()) {
-                    _searchResults.update { emptyList() }
-                    _isSearching.update { false }
-                } else {
-                    _isSearching.update { true }
-                    val results = cryptoLocalRepository.searchCoin(query)
-                    _searchResults.update { results }
-                    _isSearching.update { false }
-                }
-            }
-            .launchIn(viewModelScope)*/
-
-
-    }
     val searchResults: Flow<PagingData<CoinEntity>> = _searchQuery
         .debounce(500)
         .distinctUntilChanged()

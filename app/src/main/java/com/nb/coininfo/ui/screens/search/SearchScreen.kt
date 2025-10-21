@@ -59,7 +59,6 @@ import java.text.DecimalFormat
 fun SearchScreen(searchViewModel: SearchViewModel = hiltViewModel(), onNavigate: (CoinEntity?) -> Unit) {
     val searchQuery by searchViewModel.searchQuery.collectAsStateWithLifecycle()
     val searchResults = searchViewModel.searchResults.collectAsLazyPagingItems()
-    val isSearching by searchViewModel.isSearching.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
