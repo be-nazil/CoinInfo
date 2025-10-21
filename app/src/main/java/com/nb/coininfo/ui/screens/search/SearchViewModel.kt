@@ -2,6 +2,8 @@ package com.nb.coininfo.ui.screens.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nb.coininfo.data.repository.CryptoLocalRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,9 +14,13 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
 @OptIn(FlowPreview::class)
-class SearchViewModel : ViewModel() {
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    private val cryptoLocalRepository: CryptoLocalRepository
+)  : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("abc")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
