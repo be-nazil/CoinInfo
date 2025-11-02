@@ -124,7 +124,7 @@ class HomeViewModel @Inject constructor(
             cryptoRepository.getGlobalStats()
                 .flowOn(Dispatchers.IO)
                 .catch {
-                    Log.d("VM", "getGlobalStats: ${it.localizedMessage}")
+                    Log.d("getMovers", "getGlobalStats: ${it.localizedMessage}")
                 }
                 .collect {
                     _globalStatsLiveData.value = it
@@ -134,44 +134,34 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    val topMovers = Gson().fromJson<TopMoversEntity>(
+    val topMover = Gson().fromJson<TopMoversEntity>(
         """{"gainers":[{"id":"apex-apex-token","name":"ApeX Token","symbol":"APEX","rank":462,"percent_change":97.82},{"id":"ccd-concordium","name":"Concordium","symbol":"CCD","rank":283,"percent_change":95.8},{"id":"galeon-galeon","name":"Galeon","symbol":"GALEON","rank":1027,"percent_change":51.36},{"id":"buu-buu","name":"BUU","symbol":"BUU","rank":2907,"percent_change":38.85},{"id":"drv7-derive","name":"Derive","symbol":"DRV","rank":773,"percent_change":31.65},{"id":"labubu-labubu-sol","name":"LABUBU SOL","symbol":"LABUBU","rank":1443,"percent_change":27.07},{"id":"dnx-dynex","name":"Dynex","symbol":"DNX","rank":1556,"percent_change":25.94},{"id":"quq-quq","name":"Quq","symbol":"QUQ","rank":1889,"percent_change":25.05},{"id":"sqd-sqd","name":"SQD","symbol":"SQD","rank":516,"percent_change":25},{"id":"bsu-baby-shark-universe","name":"Baby Shark Universe","symbol":"BSU","rank":739,"percent_change":23.6}],"losers":[{"id":"null-null-matrix","name":"NULL MATRIX","symbol":"NULL","rank":2627,"percent_change":-50.4},{"id":"leash-doge-killer","name":"DOGE KILLER","symbol":"LEASH","rank":2616,"percent_change":-45.01},{"id":"bless-bless","name":"Bless","symbol":"BLESS","rank":496,"percent_change":-37.87},{"id":"streamer-streamercoin","name":"StreamerCoin","symbol":"STREAMER","rank":2574,"percent_change":-31.27},{"id":"ake-akedo","name":"Akedo","symbol":"AKE","rank":885,"percent_change":-30.5},{"id":"ip-story","name":"Story","symbol":"IP","rank":53,"percent_change":-28.99},{"id":"llm-large-language-model","name":"Large Language Model","symbol":"LLM","rank":2692,"percent_change":-27.91},{"id":"synd-syndicate","name":"Syndicate","symbol":"SYND","rank":214,"percent_change":-27.85},{"id":"tomi-tominet","name":"tomiNet","symbol":"TOMI","rank":5142,"percent_change":-25.98},{"id":"avo-avo","name":"avo","symbol":"AVO","rank":1046,"percent_change":-24.04}],"last_updated":"2025-09-25T16:46:29Z"}""",
         object : TypeToken<TopMoversEntity>(){}.type
     )
 
-    var job: Job? = null
 
     private fun getMovers() {
-        viewModelScope.launch {
-            //delay(1000)
+        viewModelScope.launch(Dispatchers.IO) {
             Log.i("getMovers", "getMovers: called before flow")
-            job = null
-            cryptoLocal.getTopGainerList().combine(cryptoLocal.getTopLoserList()) { gainersList, loserList->
-                if (gainersList.isNullOrEmpty() && loserList.isNullOrEmpty()) null
-                else TopMoversEntity(gainersList.orEmpty(), loserList.orEmpty())
-            }.flowOn(Dispatchers.IO).collectLatest { topMovers ->
-                Log.i("getMovers", "getMovers: called after flow")
-                //Log.i("TAG", "getMovers: ${topMovers != null}")
-                if (topMovers == null && job == null) {
-                    getMoversOnline()
-                } else {
+            if (cryptoLocal.hasMoversData()) {
+                cryptoLocal.getTopGainerList().combine(cryptoLocal.getTopLoserList()) { gainersList, loserList->
+                    if (gainersList.isNullOrEmpty() && loserList.isNullOrEmpty()) null
+                    else TopMoversEntity(gainersList.orEmpty(), loserList.orEmpty())
+                }.flowOn(Dispatchers.IO).collect { topMovers ->
+                    Log.i("getMovers", "getMovers: called after flow")
                     _homeUiState.update {
                         it.copy(isMoversListLoading = false, topMovers = topMovers)
                     }
                 }
+            } else {
+                getMoversOnline()
             }
         }
     }
 
-    var a : Int = 1
     private fun getMoversOnline() {
-        Log.i("VMM", "getMoversOnline: called ${a++}")
-        _homeUiState.update {
-            it.copy(isMoversListLoading = false, topMovers = topMovers)
-        }
-
-        return
-        job = viewModelScope.launch {
+        Log.i("getMovers", "getMoversOnline: called")
+        viewModelScope.launch {
             cryptoRepository.getMovers()
                 .flowOn(Dispatchers.IO)
                 .catch {
@@ -184,10 +174,10 @@ class HomeViewModel @Inject constructor(
                             cryptoLocal.insertTopMovers(losers)
                         }
                     }
+
                     _homeUiState.update {
                         it.copy(isMoversListLoading = false, topMovers = ls)
                     }
-                  //  Log.d("VM", "getGlobalStats: $ls")
                 }
         }
     }
