@@ -47,6 +47,8 @@ class CryptoLocalRepository @Inject constructor(private val cryptoLocalRepo: Cry
         return cryptoLocalRepo.insertTopMovers(movers)
     }
 
+    suspend fun hasMoversData() = cryptoLocalRepo.hasMoversData()
+
     suspend fun getTopGainerList(): Flow<List<MoverEntity>?> {
         return cryptoLocalRepo.getTopGainerList()
     }

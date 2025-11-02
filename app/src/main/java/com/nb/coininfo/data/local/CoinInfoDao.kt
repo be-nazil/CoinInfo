@@ -41,6 +41,9 @@ interface CoinInfoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTopMovers(moversEntity: List<MoverEntity>)
 
+    @Query("SELECT EXISTS ( SELECT 1 FROM movers_table LIMIT 1)")
+    fun hasMoversData(): Boolean
+
     @Query("SELECT * FROM movers_table WHERE percent_change > 0 ORDER BY percent_change DESC")
     fun getTopGainerList(): Flow<List<MoverEntity>?>
 

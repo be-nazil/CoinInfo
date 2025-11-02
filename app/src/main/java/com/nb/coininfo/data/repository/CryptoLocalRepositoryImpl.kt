@@ -20,6 +20,7 @@ interface CryptoLocalRepo {
     suspend fun getCoinsList() : Flow<List<CoinEntity>?>
     suspend fun getCoinTopCoins() : Flow<List<CoinEntity>?>
     suspend fun getCoin(id: String) : Flow<CoinEntity?>
+    suspend fun hasMoversData(): Boolean
     suspend fun insertTopMovers(movers: List<MoverEntity>)
     suspend fun getTopGainerList() : Flow<List<MoverEntity>?>
     suspend fun getTopLoserList() : Flow<List<MoverEntity>?>
@@ -62,6 +63,10 @@ class CryptoLocalRepositoryImpl @Inject constructor(private val coinInfoDao: Coi
 
     override suspend fun getCoinTopCoins(): Flow<List<CoinEntity>?> {
         return coinInfoDao.getCoinTopCoins()
+    }
+
+    override suspend fun hasMoversData(): Boolean {
+        return coinInfoDao.hasMoversData()
     }
 
     override suspend fun insertTopMovers(movers: List<MoverEntity>) {
