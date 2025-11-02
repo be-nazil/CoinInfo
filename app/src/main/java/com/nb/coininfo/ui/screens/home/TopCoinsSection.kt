@@ -104,8 +104,7 @@ private fun TopCoinItem(modifier: Modifier, coin: CoinEntity?, onClick: (String)
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Column(modifier = Modifier.weight(1.2f)
-        ) {
+        Column(modifier = Modifier.weight(1.2f)) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = coin?.name ?: "NA",
@@ -136,5 +135,19 @@ fun TopCoinsSectionPreview() {
         TopCoinsSection(topCoins = sampleCoins) {
 
         }
+    }
+}
+@Preview(showBackground = true, backgroundColor = 0xFF121212)
+@Composable
+fun CoinsItemPreview() {
+    Card(
+        modifier = Modifier.height(80.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CardDarkBackground)
+    ) {
+        TopCoinItem(
+            Modifier.fillMaxSize(),
+            coin = CoinEntity("btc-bitcoin", "Bitcoin", "BTC", 1, false, true, "coin", null),
+        ) { }
     }
 }
