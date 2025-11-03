@@ -5,8 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,10 +17,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nb.coininfo.R
+import com.nb.coininfo.data.models.CoinEntity
 import com.nb.coininfo.data.models.MoverEntity
 import com.nb.coininfo.ui.theme.AccentCyan
 import com.nb.coininfo.ui.theme.CardDarkBackground
@@ -42,26 +48,24 @@ fun CryptoMoverItem(
     val percentChangeColor = if (mover.percentChange >= 0) AccentCyan else Red40
     val percentChangeSign = if (mover.percentChange >= 0) "+" else ""
 
-    Row(
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .clickable(true) {
                 onClick?.invoke(mover)
             },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         // Left side: Rank, Name, Symbol
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier.fillMaxWidth(), ) {
             Text(
                 text = mover.rank.toString(),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MutedText,
-                modifier = Modifier.width(40.dp) // Fixed width for rank
+                modifier = Modifier.weight(1.1f)
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Column {
+            //Spacer(modifier = Modifier.width(8.dp))
+            Column(modifier = Modifier.weight(5f).padding(horizontal = 2.dp)) {
                 Text(
                     text = mover.name,
                     style = MaterialTheme.typography.bodyLarge,
@@ -71,18 +75,19 @@ fun CryptoMoverItem(
                 Text(
                     text = mover.symbol.uppercase(), // Display symbol in uppercase
                     style = MaterialTheme.typography.bodySmall,
-                    color = MutedText
+                    color = MutedText,
                 )
             }
+            // Right side: Percentage Change
+            Text(
+                text = "$percentChangeSign${DecimalFormat("0.00").format(mover.percentChange)}%",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                color = percentChangeColor,
+                modifier = Modifier.weight(1.6f)
+            )
         }
 
-        // Right side: Percentage Change
-        Text(
-            text = "$percentChangeSign${DecimalFormat("0.00").format(mover.percentChange)}%",
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
-            color = percentChangeColor
-        )
     }
 }
 
@@ -105,9 +110,9 @@ fun CryptoMoverHeader(
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Light,
                     color = Color.White,
-                    modifier = Modifier // Fixed width for rank
+                    modifier = Modifier
                 )
-                Spacer(modifier = Modifier.width(12.dp).padding(start = 10.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = "Name",
                     style = MaterialTheme.typography.bodyMedium,
@@ -171,10 +176,10 @@ fun TopMoversList(
                     items(topMovers) { mover ->
                         CryptoMoverItem(mover = mover, onClick = onClick)
                         if (mover != topMovers.last()) { // Add divider between items
-                            Divider(
-                                color = MutedText.copy(alpha = 0.1f),
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 16.dp),
                                 thickness = 0.5.dp,
-                                modifier = Modifier.padding(horizontal = 16.dp)
+                                color = MutedText.copy(alpha = 0.1f)
                             )
                         }
                     }
@@ -300,7 +305,7 @@ fun TopLosersList(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = CardDarkBackground)
     ) {
-        Column() {
+        Column {
             Text(
                 text = "Top Losers (24H)",
                 style = MaterialTheme.typography.titleMedium,
@@ -338,6 +343,55 @@ fun TopLosersList(
     }
 }
 
+
+/**
+ * A composable for a single item in the Top Coins list.
+ *
+ * @param coin The data for the coin to display.
+ */
+@Composable
+fun TopMoverItem(modifier: Modifier, coin: MoverEntity, onClick: (String)-> Unit) {
+
+    val percentChangeColor = if (coin.percentChange >= 0) AccentCyan else Red40
+    val percentChangeSign = if (coin.percentChange >= 0) "+" else ""
+
+    Row(
+        modifier = modifier
+            .padding(vertical = 8.dp, horizontal = 12.dp)
+            .clickable(
+                enabled = true,
+                onClick = { onClick.invoke(coin?.id ?: "") }
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Column(modifier = Modifier) {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = coin?.name ?: "NA",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White
+            )
+            Text(
+                text = coin?.symbol?.uppercase() ?: "NA",
+                style = MaterialTheme.typography.bodySmall,
+                color = MutedText
+            )
+            Text(
+                text = "$percentChangeSign${DecimalFormat("0.00").format(coin.percentChange)}%",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                color = percentChangeColor,
+                modifier = Modifier
+            )
+        }
+
+
+    }
+}
+
+
 // --- Previews ---
 @Preview(showBackground = true, backgroundColor = 0xFF121212)
 @Composable
@@ -372,10 +426,25 @@ fun TopLosersListPreview() {
     val sampleLosers = listOf(
         MoverEntity("doge", "Dogecoin", "DOGE", 10, -8.12),
         MoverEntity("shib", "Shiba Inu", "SHIB", 11, -6.54),
-        MoverEntity("xrp", "Ripple", "XRP", 5, -4.01),
+        MoverEntity("xrp", "上证综合指数6900 (Shanghai Composite Index 6900)", "XRP", 92825, -100.01),
     )
     Column(modifier = Modifier.padding(16.dp)) {
         CryptoMoverHeader()
         TopLosersList(topLosers = sampleLosers)
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF121212)
+@Composable
+fun CoinItemPreview() {
+    Card(
+        modifier = Modifier.width(150.dp).height(90.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CardDarkBackground)
+    ) {
+        TopMoverItem(
+            Modifier.fillMaxSize(),
+            MoverEntity("shib", "Shiba Inu", "SHIB", 11, -6.54),
+        ) { }
     }
 }
