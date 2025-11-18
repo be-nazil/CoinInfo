@@ -72,7 +72,7 @@ fun TopCoinsSection(
  * @param coin The data for the coin to display.
  */
 @Composable
-private fun TopCoinItem(modifier: Modifier, coin: CoinEntity?, onClick: (String)-> Unit) {
+fun TopCoinItem(modifier: Modifier, coin: CoinEntity?, onClick: (String)-> Unit) {
     Row(
         modifier = modifier
             .padding(vertical = 12.dp, horizontal = 16.dp)

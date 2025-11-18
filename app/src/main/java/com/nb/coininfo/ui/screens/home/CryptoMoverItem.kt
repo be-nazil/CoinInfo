@@ -3,7 +3,11 @@ package com.nb.coininfo.ui.screens.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -343,6 +348,40 @@ fun TopLosersList(
     }
 }
 
+@Composable
+fun TopMoversScreen(modifier: Modifier, coin: List<MoverEntity>, onEvent: (String) -> Unit) {
+    Card(
+        modifier = modifier.fillMaxWidth().height(180.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CardDarkBackground)
+    ) {
+        Column(
+            modifier = modifier.fillMaxSize().padding( 10.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (coin.isEmpty()) {
+                Text(
+                    text = "No coin data available.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MutedText,
+                    modifier = Modifier.padding(16.dp)
+                )
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                ) {
+                    items(coin.take(4)) { coin ->
+                        TopMoverItem(Modifier, coin = coin) {
+                            onEvent.invoke(it)
+                        }
+                    }
+
+                }
+
+            }
+        }
+    }
+}
 
 /**
  * A composable for a single item in the Top Coins list.
@@ -437,14 +476,13 @@ fun TopLosersListPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFF121212)
 @Composable
 fun CoinItemPreview() {
-    Card(
-        modifier = Modifier.width(150.dp).height(90.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = CardDarkBackground)
-    ) {
-        TopMoverItem(
-            Modifier.fillMaxSize(),
+    TopMoversScreen(
+        Modifier,
+        listOf(
             MoverEntity("shib", "Shiba Inu", "SHIB", 11, -6.54),
-        ) { }
-    }
+            MoverEntity("shib", "Shiba Inu", "SHIB", 11, 6.54),
+            MoverEntity("shib", "Shiba Inu", "SHIB", 11, -6.54),
+            MoverEntity("shib", "Shiba Inu", "SHIB", 11, 6.54)
+        )
+    ) {}
 }
