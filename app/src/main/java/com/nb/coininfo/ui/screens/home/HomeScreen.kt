@@ -10,25 +10,37 @@ import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,9 +50,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -52,6 +66,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nb.coininfo.R
 import com.nb.coininfo.ui.components.AnimationType
 import com.nb.coininfo.ui.components.AppAnimatedVisibility
 import com.nb.coininfo.ui.components.CardAction
@@ -64,7 +79,10 @@ import com.nb.coininfo.ui.screens.walkthrough.WalkthroughOverlay
 import com.nb.coininfo.ui.screens.walkthrough.WalkthroughTarget
 import com.nb.coininfo.ui.screens.walkthrough.WalkthroughViewModel
 import com.nb.coininfo.ui.screens.walkthrough.walkthroughTarget
+import com.nb.coininfo.ui.theme.AccentCyan
 import com.nb.coininfo.ui.theme.CardDarkBackground
+import com.nb.coininfo.ui.theme.MutedText
+import com.nb.coininfo.ui.theme.Red40
 import com.nb.coininfo.ui.theme.ScreenBackground
 import kotlinx.coroutines.delay
 
@@ -213,15 +231,51 @@ fun HomeScreenContent(
                     }
                 }
 
+                item {
+                    Spacer(modifier = Modifier.height(30.dp))
+
+                    Row(modifier = Modifier.padding(4.dp)) {
+                        Text(
+                            text = "Top Gainers",
+                            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.W400),
+                            letterSpacing = TextUnit(5f, TextUnitType.Unspecified),
+                            color = Color.White,
+                        )
+                        HorizontalDivider(modifier = Modifier.width(5.dp), color = Color.Transparent)
+                        Icon(painterResource(R.drawable.ic_trending_up), tint = AccentCyan, contentDescription = "")
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    if (!homeUiState.isMoversListLoading) {
+                        AppAnimatedVisibility(
+                            visible = !homeUiState.isCoinListLoading,
+                            animationType = AnimationType.SLIDE_VERTICALLY
+                        ) {
+                            TopMoversScreen(
+                                modifier = Modifier
+                                    .walkthroughTarget(WalkthroughTarget.TOP_COINS_SECTION, highlightBounds),
+                                topGainers
+                            ) {
+                                Log.d("HomeScreenContent", "HomeScreenContent: clicked $it")
+                                navigate?.invoke(Screen.CoinDetail(it))
+                            }
+                        }
+                    } else {
+                        ShimmerCard(shimmerBrush())
+                    }
+                }
+
                 stickyHeader {
                     Spacer(modifier = Modifier.height(30.dp))
-                    Text(
-                        modifier = Modifier.padding(4.dp),
-                        text = "Top Gainers/Losers",
-                        style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.W400),
-                        letterSpacing = TextUnit(5f, TextUnitType.Unspecified),
-                        color = Color.White
-                    )
+                    Row(modifier = Modifier.padding(4.dp)) {
+                        Text(
+                            text = "Top Losers",
+                            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.W400),
+                            letterSpacing = TextUnit(5f, TextUnitType.Unspecified),
+                            color = Color.White,
+                        )
+                        HorizontalDivider(modifier = Modifier.width(5.dp), color = Color.Transparent)
+                        Icon(painterResource(R.drawable.ic_trending_up),modifier = Modifier.rotate(50f), tint = Red40, contentDescription = "")
+                    }
                     Spacer(Modifier.height(10.dp))
                     if (homeUiState.isMoversListLoading) {
                         ShimmerCard(shimmerBrush())
@@ -231,9 +285,13 @@ fun HomeScreenContent(
                         visible = !homeUiState.isMoversListLoading,
                         animationType = AnimationType.EXPAND_VERTICALLY
                     ) {
-                        TopMoversSection(topGainers, topLosers,
-                            modifier = Modifier.walkthroughTarget(WalkthroughTarget.TOP_MOVERS_TAB, highlightBounds)) { id ->
-                            navigate?.invoke(Screen.CoinDetail(id))
+                        TopMoversScreen(
+                            modifier = Modifier
+                                .walkthroughTarget(WalkthroughTarget.TOP_COINS_SECTION, highlightBounds),
+                            topLosers
+                        ) {
+                            Log.d("HomeScreenContent", "HomeScreenContent: clicked $it")
+                            navigate?.invoke(Screen.CoinDetail(it))
                         }
                     }
                 }
